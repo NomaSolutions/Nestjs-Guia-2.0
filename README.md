@@ -1,27 +1,40 @@
 Guia de Aplicação NestJS com Prisma + Docker: CRUD de Pokemon
 Aqui está um guia passo a passo para desenvolver uma aplicação CRUD de Pokemon usando NestJS com Prisma, PostgreSQL e Docker, seguindo os princípios SOLID.
 
-1. Configuração inicial do projeto
+# 1. Configuração inicial do projeto
 Primeiro, vamos instalar o NestJS CLI e criar um novo projeto:
-bashnpm i -g @nestjs/cli
-
+````
+npm i -g @nestjs/cli
+````
+````
 nest new pokemon-api
+````
+
 # Ou se já estiver dentro da pasta
+````
 nest new .
-
+````
+````
 cd pokemon-api
-
+````
+````
 code .
+````
+
 Instale as dependências necessárias:
-bashnpm install @nestjs/swagger swagger-ui-express @prisma/client prisma
+````
+npm install @nestjs/swagger swagger-ui-express @prisma/client prisma
 npm install -D prisma @types/node
-
+````
 # Dependências para validação
+````
 npm install class-validator class-transformer
+````
 
-2. Configuração do Docker
+# 2. Configuração do Docker
 Crie o arquivo Dockerfile:
-dockerfileFROM node:18-alpine
+````
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -67,12 +80,17 @@ volumes:
   postgres_data:
 Crie o arquivo .env:
 envDATABASE_URL="postgresql://pokemon_user:pokemon_pass@localhost:5432/pokemon_db"
+````
 
-3. Configuração do Prisma
+# 3. Configuração do Prisma
 Inicialize o Prisma:
-bashnpx prisma init
+````
+npx prisma init
+````
+
 Edite o arquivo prisma/schema.prisma:
-prismagenerator client {
+````
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -94,13 +112,18 @@ model Pokemon {
 
   @@map("pokemons")
 }
-Execute as migrations:
-bashnpx prisma migrate dev --name init
-npx prisma generate
+````
 
-4. Configuração do Swagger
+Execute as migrations:
+````
+npx prisma migrate dev --name init
+npx prisma generate
+````
+
+# 4. Configuração do Swagger
 Configure o Swagger no arquivo src/main.ts:
-typescriptimport { NestFactory } from '@nestjs/core';
+````
+import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
@@ -129,14 +152,19 @@ async function bootstrap() {
   console.log('Swagger documentation: http://localhost:3000/api');
 }
 bootstrap();
+````
 
-5. Criação dos DTOs
+# 5. Criação dos DTOs
 Crie a estrutura de diretórios:
-bashnest g module pokemon
+````
+nest g module pokemon
 nest g controller pokemon
 nest g service pokemon
+````
+
 Crie o arquivo src/pokemon/dto/create-pokemon.dto.ts:
-typescriptimport { ApiProperty } from '@nestjs/swagger';
+````
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsInt, Min, Max, IsNotEmpty } from 'class-validator';
 
 export class CreatePokemonDto {
@@ -171,13 +199,19 @@ export class CreatePokemonDto {
   @Min(1)
   defense: number;
 }
+````
+
 Crie o arquivo src/pokemon/dto/update-pokemon.dto.ts:
-typescriptimport { PartialType } from '@nestjs/swagger';
+````
+import { PartialType } from '@nestjs/swagger';
 import { CreatePokemonDto } from './create-pokemon.dto';
 
 export class UpdatePokemonDto extends PartialType(CreatePokemonDto) {}
+````
+
 Crie o arquivo src/pokemon/entities/pokemon.entity.ts:
-typescriptimport { ApiProperty } from '@nestjs/swagger';
+````
+import { ApiProperty } from '@nestjs/swagger';
 
 export class Pokemon {
   @ApiProperty({ example: 'cuid1234567890', description: 'ID único do Pokemon' })
@@ -207,10 +241,12 @@ export class Pokemon {
   @ApiProperty({ description: 'Data de atualização' })
   updatedAt: Date;
 }
+````
 
-6. Configuração do Prisma Service
+# 6. Configuração do Prisma Service
 Crie o arquivo src/prisma/prisma.service.ts:
-typescriptimport { Injectable, OnModuleInit } from '@nestjs/common';
+````
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
@@ -223,8 +259,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     await this.$disconnect();
   }
 }
+````
+
 Crie o arquivo src/prisma/prisma.module.ts:
-typescriptimport { Global, Module } from '@nestjs/common';
+````
+import { Global, Module } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 
 @Global()
@@ -233,10 +272,12 @@ import { PrismaService } from './prisma.service';
   exports: [PrismaService],
 })
 export class PrismaModule {}
+````
 
-7. Repository Pattern (SOLID)
+# 7. Repository Pattern (SOLID)
 Crie a interface do repositório src/pokemon/repository/pokemon-repository.interface.ts:
-typescriptimport { CreatePokemonDto } from '../dto/create-pokemon.dto';
+````
+import { CreatePokemonDto } from '../dto/create-pokemon.dto';
 import { UpdatePokemonDto } from '../dto/update-pokemon.dto';
 import { Pokemon } from '../entities/pokemon.entity';
 
@@ -248,8 +289,11 @@ export abstract class PokemonRepository {
   abstract update(id: string, updatePokemonDto: UpdatePokemonDto): Promise<Pokemon | null>;
   abstract remove(id: string): Promise<Pokemon | null>;
 }
+````
+
 Crie a implementação src/pokemon/repository/pokemon-repository.prisma.ts:
-typescriptimport { Injectable } from '@nestjs/common';
+````
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PokemonRepository } from './pokemon-repository.interface';
 import { CreatePokemonDto } from '../dto/create-pokemon.dto';
@@ -305,10 +349,12 @@ export class PokemonRepositoryPrisma implements PokemonRepository {
     }
   }
 }
+````
 
-8. Service
+# 8. Service
 Edite o arquivo src/pokemon/pokemon.service.ts:
-typescriptimport { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+````
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PokemonRepository } from './repository/pokemon-repository.interface';
 import { CreatePokemonDto } from './dto/create-pokemon.dto';
 import { UpdatePokemonDto } from './dto/update-pokemon.dto';
@@ -369,10 +415,12 @@ export class PokemonService {
     return pokemon;
   }
 }
+````
 
-9. Controller
+# 9. Controller
 Edite o arquivo src/pokemon/pokemon.controller.ts:
-typescriptimport { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+````
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PokemonService } from './pokemon.service';
 import { CreatePokemonDto } from './dto/create-pokemon.dto';
@@ -428,10 +476,12 @@ export class PokemonController {
     await this.pokemonService.remove(id);
   }
 }
+````
 
-10. Configuração dos Módulos
+# 10. Configuração dos Módulos
 Edite o arquivo src/pokemon/pokemon.module.ts:
-typescriptimport { Module } from '@nestjs/common';
+````
+import { Module } from '@nestjs/common';
 import { PokemonService } from './pokemon.service';
 import { PokemonController } from './pokemon.controller';
 import { PokemonRepository } from './repository/pokemon-repository.interface';
@@ -448,8 +498,11 @@ import { PokemonRepositoryPrisma } from './repository/pokemon-repository.prisma'
   ],
 })
 export class PokemonModule {}
+````
+
 Edite o arquivo src/app.module.ts:
-typescriptimport { Module } from '@nestjs/common';
+````
+import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { PokemonModule } from './pokemon/pokemon.module';
 
@@ -457,29 +510,42 @@ import { PokemonModule } from './pokemon/pokemon.module';
   imports: [PrismaModule, PokemonModule],
 })
 export class AppModule {}
+````
 
-11. Executando a aplicação
+# 11. Executando a aplicação
 Para desenvolvimento local:
-bash# Subir apenas o banco de dados
+Subir apenas o banco de dados:
+````
 docker-compose up db -d
+````
 
 # Executar migrations
+````
 npx prisma migrate dev
+````
 
 # Iniciar a aplicação
+````
 npm run start:dev
+````
+
 Para executar com Docker completo:
-bash# Construir e executar todos os serviços
+Construir e executar todos os serviços:
+````
 docker-compose up --build
+````
 
-# Em outro terminal, executar as migrations
+# Em outro terminal, executar as migrations:
+````
 docker-compose exec app npx prisma migrate deploy
+````
 
-12. Testando a API
+# 12. Testando a API
 Acesse http://localhost:3000/api para ver a documentação Swagger.
 Exemplo de requisições:
 Criar Pokemon:
-jsonPOST /pokemon
+POST /pokemon
+````
 {
   "name": "Pikachu",
   "type": "Electric",
@@ -488,36 +554,50 @@ jsonPOST /pokemon
   "attack": 55,
   "defense": 40
 }
+````
 Listar todos:
 GET /pokemon
+
 Buscar por ID:
 GET /pokemon/{id}
 Atualizar:
-jsonPATCH /pokemon/{id}
+PATCH /pokemon/{id}
+````
 {
   "level": 30,
   "hp": 40
 }
+````
 Remover:
 DELETE /pokemon/{id}
 
-13. Comandos úteis
-bash# Resetar banco de dados
+# 13. Comandos úteis
+bash# Resetar banco de dados:
+````
 npx prisma migrate reset
+````
 
 # Visualizar banco de dados
+````
 npx prisma studio
+````
 
 # Gerar cliente Prisma após mudanças no schema
+````
 npx prisma generate
+````
 
 # Criar nova migration
+````
 npx prisma migrate dev --name nome_da_migration
+````
 
 # Deploy das migrations em produção
+````
 npx prisma migrate deploy
+````
 
-Conclusão
+## Conclusão
 Esta aplicação segue os princípios SOLID com separação clara de responsabilidades:
 
 Single Responsibility: Cada classe tem uma única responsabilidade
