@@ -14,6 +14,8 @@ nest new pokemon-api
 ````
 nest new .
 ````
+
+# Continuando
 ````
 cd pokemon-api
 ````
@@ -49,8 +51,11 @@ RUN npm run build
 EXPOSE 3000
 
 CMD ["npm", "run", "start:prod"]
+````
+
 Crie o arquivo docker-compose.yml:
-yamlversion: '3.8'
+````
+version: '3.8'
 
 services:
   app:
@@ -78,7 +83,10 @@ services:
 
 volumes:
   postgres_data:
+````
+
 Crie o arquivo .env:
+````
 envDATABASE_URL="postgresql://pokemon_user:pokemon_pass@localhost:5432/pokemon_db"
 ````
 
