@@ -87,7 +87,7 @@ volumes:
 
 Crie o arquivo .env:
 ````
-envDATABASE_URL="postgresql://pokemon_user:pokemon_pass@localhost:5432/pokemon_db"
+DATABASE_URL="postgresql://pokemon_user:pokemon_pass@localhost:5432/pokemon_db"
 ````
 
 # 3. Configuração do Prisma
