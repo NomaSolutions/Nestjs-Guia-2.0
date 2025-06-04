@@ -54,7 +54,7 @@ EXPOSE 3000
 CMD ["npm", "run", "start:prod"]
 ````
 
-Crie o arquivo docker-compose.yml:
+Crie o arquivo docker-compose.yml na raiz do projeto:
 ````
 version: '3.8'
 
