@@ -4,6 +4,7 @@ Aqui está um guia passo a passo para desenvolver uma aplicação CRUD de Pokemo
 # 1. Configuração inicial do projeto
 Primeiro, vamos instalar o NestJS CLI e criar um novo projeto:
 ````
+npm i
 npm i -g @nestjs/cli
 ````
 ````
