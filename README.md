@@ -590,6 +590,11 @@ docker-compose up --build
 docker-compose exec app npx prisma migrate deploy
 ````
 
+# Derrubar a aplicação:
+````
+docker-compose down 
+````
+
 # 12. Testando a API
 Acesse http://localhost:3000/api para ver a documentação Swagger.
 Exemplo de requisições:
