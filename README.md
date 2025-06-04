@@ -123,6 +123,11 @@ model Pokemon {
 }
 ````
 
+Antes de executar as migrations, rode o docker:
+````
+docker-compose up -d db
+````
+
 Execute as migrations:
 ````
 npx prisma migrate dev --name init
