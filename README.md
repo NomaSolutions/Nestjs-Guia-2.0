@@ -207,9 +207,9 @@ bootstrap();
 # 5. Criação dos DTOs
 Crie a estrutura de diretórios:
 ````
-nest g module pokemon
-nest g controller pokemon
-nest g service pokemon
+nest g module pokemon --no-spec
+nest g controller pokemon --no-spec
+nest g service pokemon --no-spec
 ````
 
 Crie o arquivo src/pokemon/dto/create-pokemon.dto.ts:
