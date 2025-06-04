@@ -135,35 +135,71 @@ npx prisma generate
 ````
 
 # 4. Configuração do Swagger
-Configure o Swagger no arquivo src/main.ts:
+Crie o arquivo src/config/swagger.config.ts:
+````
+import { INestApplication } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
+export function setupSwagger(app: INestApplication): void {
+  const config = new DocumentBuilder()
+    .setTitle('Pokemon API')
+    .setDescription('API para gerenciamento de Pokémons seguindo princípios SOLID')
+    .setVersion('1.0')
+    .addTag('pokemon', 'Operações relacionadas aos Pokemon')
+    .addServer('http://localhost:3000', 'Servidor de Desenvolvimento')
+    .setContact(
+      'Equipe de Desenvolvimento',
+      'https://github.com/seu-usuario/pokemon-api',
+      'contato@pokemon-api.com'
+    )
+    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
+    customSiteTitle: 'Pokemon API - Documentação',
+    customfavIcon: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
+    customCss: `
+      .swagger-ui .topbar { display: none }
+      .swagger-ui .info .title { color: #ff6b35; font-size: 2.5rem; }
+    `,
+  });
+
+  console.log('📚 Swagger documentation: http://localhost:3000/api');
+}
+````
+
+E referencie essa função na src/main.ts:
 ````
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Configuração global de validação
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
     transform: true,
+    transformOptions: { enableImplicitConversion: true },
   }));
 
-  const config = new DocumentBuilder()
-    .setTitle('Pokemon API')
-    .setDescription('API para gerenciamento de Pokémons')
-    .setVersion('1.0')
-    .addTag('pokemon')
-    .build();
+  // Configuração do CORS (se necessário)
+  // app.enableCors();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  // Setup do Swagger
+  setupSwagger(app);
 
   await app.listen(3000);
-  console.log('Application is running on: http://localhost:3000');
-  console.log('Swagger documentation: http://localhost:3000/api');
+  console.log('🚀 Application is running on: http://localhost:3000');
 }
 bootstrap();
 ````
