@@ -86,7 +86,7 @@ volumes:
   postgres_data:
 ````
 
-Crie o arquivo .env:
+Crie o arquivo .env na raiz do projeto:
 ````
 DATABASE_URL="postgresql://pokemon_user:pokemon_pass@localhost:5432/pokemon_db"
 ````
