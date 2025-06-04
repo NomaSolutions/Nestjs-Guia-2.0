@@ -35,7 +35,7 @@ npm install class-validator class-transformer
 ````
 
 # 2. Configuração do Docker
-Crie o arquivo Dockerfile:
+Crie o arquivo Dockerfile na raiz do projeto:
 ````
 FROM node:18-alpine
 
